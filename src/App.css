@@ -166,7 +166,18 @@ input:focus {
 .eachItem:hover h3 {
   color: rgb(85, 41, 220);
 }
+.addItems {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.addItems{
+  margin-top: 13px;
 
+}
+.addItems i{
+  font-size: 25px;
+}
 .btn {
   letter-spacing: 0.1em;
   cursor: pointer;

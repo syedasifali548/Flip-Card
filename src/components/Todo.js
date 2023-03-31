@@ -1,70 +1,56 @@
+import { ContactMailSharp } from "@material-ui/icons";
 import React, { useEffect, useState } from "react";
 import "../App.css";
 
-// to get the data from localstorage
-const getLocalData = () => {
-  const lists = localStorage.getItem("todoList");
-  if (lists) {
-    return JSON.parse(lists);
-  } else {
-    return [];
-  }
-};
 const Todo = () => {
-  const [inputdata, setInputdata] = useState("");
-  const [item, setItem] = useState(getLocalData);
-  const [itemEdit, setItemEdit] = useState("");
-  const [toggle, setToggle] = useState(false);
+  const[todos,setTodos] = useState([])
+  const[inputvalues,setInputvalues] = useState("")
+  const [editingindex,setEditingindex] = useState(null)
+  // Add todos
+  const handleAddtodo=()=>{
+    setTodos([...todos,inputvalues])
+    if(inputvalues && todos < 1){
+      return(
+       alert("Can not add empty field")
+      )
+     }
+    setInputvalues("")
+  }
+  // Delete Todos Item 
 
-  // Add new data to todo List
-  const addItem = () => {
-    if (!inputdata) {
-      alert("You can add empty data");
-    } else if (inputdata && toggle) {
-      setItem(
-        item.map((cElem) => {
-          if (cElem.id === editItem) {
-            return { ...cElem, names: inputdata };
-          }
-          return cElem;
-        })
-      );
-      setInputdata("");
-      setItemEdit(null);
-      setToggle(false);
-    } else {
-      const newInputData = {
-        id: new Date().getTime().toString(),
-        names: inputdata,
-      };
-      setItem([...item, newInputData]);
-      setInputdata("");
-    }
-  };
-  //    Delete item
-  const deleteItem = (i) => {
-    const updatedTodoList = item.filter((cElem) => {
-      return cElem.id !== i;
-    });
-    setItem(updatedTodoList);
-  };
-  //Remove All Items
-  const removeAll = () => {
-    setItem([]);
-  };
-  //   add data to local storage
-  useEffect(() => {
-    localStorage.setItem("todoList", JSON.stringify(item));
-  }, [item]);
-  // Edit Todo Item
-  const editItem = (i) => {
-    const editTodoItem = item.find((cElem) => {
-      return cElem.id === i;
-    });
-    setInputdata(editTodoItem.names);
-    setItemEdit(i);
-    setToggle(true);
-  };
+  const handleDeleteTodo=(index)=>{
+    const newTodos = [...todos];
+    newTodos.splice(index,1);
+    setTodos(newTodos)
+  }
+
+  // Edit an Todo item
+const handleEditTodo=(index,value)=>{
+    setInputvalues(value);
+    setEditingindex(index)
+}
+// Add Or Update Todo
+
+const handleAddOrUpdateTodo=()=>{
+  if(editingindex !== null){
+    const newUpdateTodo = [...todos];
+    newUpdateTodo[editingindex] = inputvalues;
+    setTodos(newUpdateTodo);
+    setInputvalues('');
+    setEditingindex(null)
+  }
+  else{
+    setTodos([...todos,inputvalues])
+    setInputvalues('');
+
+  }
+}
+
+
+// Delete All
+const handleDeleteAll=()=>{
+  setTodos([])
+}
 
   return (
     <>
@@ -81,37 +67,43 @@ const Todo = () => {
             <input
               type="text"
               placeholder="Add items"
-              value={inputdata}
-              onChange={(e) => setInputdata(e.target.value)}
+              required
+              value={inputvalues}
+              onChange={(e)=>setInputvalues(e.target.value)}
+            
             />
-            <i className="fa fa-plus add-btn" onClick={addItem}></i>
+            <div className="addItems" onClick={handleAddOrUpdateTodo}>
+            {
+              editingindex !== null ? ( <i className="fa fa-edit add-btn"></i>):
+              (<i className="fa fa-plus add-btn"></i>)
+            }
+           
+            </div>
           </div>
-
           <div className="showItems">
-            {item?.map((cElem) => {
-              return (
-                <div className="eachItem" key={cElem?.id}>
-                  <h3>{cElem?.names}</h3>
-                  <i
-                    className="fa fa-edit add-btn"
-                    title="Edit Item"
-                    onClick={() => editItem(cElem.id)}
-                  ></i>
-                  <i
-                    className="fa fa-trash-alt add-btn"
-                    title="Delete Item"
-                    onClick={() => deleteItem(cElem.id)}
-                  ></i>
+          {
+            todos.map((todo,index)=>(
+              <div className="eachItem" key={index}>
+              <h3>{todo}</h3>
+              <i
+              onClick={()=>handleEditTodo(index,todo)}
+                className="fa fa-edit add-btn"
+                title="Edit Item"></i>
+              <i
+             onClick={()=>handleDeleteTodo(index)}
+                className="fa fa-trash-alt add-btn"
+                title="Delete Item"></i>
                 </div>
-              );
-            })}
+                ))
+              }
+       
 
             {/*clear all button */}
           </div>
           <button
+          onClick={handleDeleteAll}
             className="btn effect04"
             data-sm-link-text="Remove All"
-            onClick={removeAll}
           >
             <span>CHECK LIST</span>
           </button>
